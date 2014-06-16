@@ -24,8 +24,3 @@ To compile your own program:
     echo ",.+.+." | ./llvm-brainfuck | llvm-as | opt -instcombine | llc >test.s
     clang test.s shim.a -o test
 
-
-Bugs
-----
-
-**Current version is buggy.** Cycles do not work properly.

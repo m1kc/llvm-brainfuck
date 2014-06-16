@@ -105,12 +105,12 @@ int main() {
 
         // Define the pointer after the loop.
         Builder.SetInsertPoint(ThisLoop.Exit);
-        ThisLoop.DataPtrExit = Builder.CreatePHI(DataPtr->getType(), PTR_NAME);
+        ThisLoop.DataPtrExit = Builder.CreatePHI(DataPtr->getType(), 2, PTR_NAME);
         ThisLoop.DataPtrExit->addIncoming(DataPtr, ThisLoop.Entry);
 
         // Define the pointer within the loop.
         Builder.SetInsertPoint(ThisLoop.Body);
-        ThisLoop.DataPtrBody = Builder.CreatePHI(DataPtr->getType(), PTR_NAME);
+        ThisLoop.DataPtrBody = Builder.CreatePHI(DataPtr->getType(), 2, PTR_NAME);
         ThisLoop.DataPtrBody->addIncoming(DataPtr, ThisLoop.Entry);
 
         // Continue generating code within the loop.
