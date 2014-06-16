@@ -1,4 +1,4 @@
-//#include <cstdio>
+#include <cstdio>
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -19,6 +19,7 @@ int main() {
 
   // Some useful constants.
   Type *CellType = Type::getInt8Ty(Context);
+  Constant *One = ConstantInt::get(CellType, 1);
 
   // Global data for a brainfuck program.
   ArrayType *DataType = ArrayType::get(CellType, DATA_SIZE);
@@ -38,7 +39,31 @@ int main() {
       Function::ExternalLinkage, "brainfuck_main", &MainModule);
   BasicBlock *MainBlock = BasicBlock::Create(Context, "entry", MainFunction);
   Builder.SetInsertPoint(MainBlock);
-
+ 
+  // Code generation.
+  int c;
+  Value *Value;
+  while ((c = getchar()) != EOF) {
+    switch (c) {
+      case '>':
+        DataPtr = Builder.CreateConstGEP1_32(DataPtr, 1, PTR_NAME);
+        break;
+      case '<':
+        DataPtr = Builder.CreateConstGEP1_32(DataPtr, -1, PTR_NAME);
+        break;
+      case '+':
+        Value = Builder.CreateLoad(DataPtr);
+        Value = Builder.CreateAdd(Value, One);
+        Builder.CreateStore(Value, DataPtr);
+        break;
+      case '-':
+        Value = Builder.CreateLoad(DataPtr);
+        Value = Builder.CreateSub(Value, One);
+        Builder.CreateStore(Value, DataPtr);
+        break;
+    }
+  }
+ 
   // Finish off brainfuck_main and dump.
   Builder.CreateRetVoid();
   MainModule.print(outs(), NULL /* assembly annotation writer */);
