@@ -30,6 +30,20 @@ int main() {
   Value *DataPtr = Builder.CreateConstInBoundsGEP2_32(Data, 0, 0, PTR_NAME);
   (void) DataPtr;  // unused
 
+  // Function prototypes for the shim.
+  FunctionType *PutFunctionType = FunctionType::get(
+      Type::getVoidTy(Context) /* return type */,
+      std::vector<Type *>(1, CellType) /* argument types */,
+      false /* var args */);
+  Function *PutFunction = Function::Create(PutFunctionType,
+      Function::ExternalLinkage, "brainfuck_put", &MainModule);
+  FunctionType *GetFunctionType = FunctionType::get(
+      CellType /* return type */,
+      std::vector<Type *>() /* argument types */,
+      false /* var args */);
+  Function *GetFunction = Function::Create(GetFunctionType,
+      Function::ExternalLinkage, "brainfuck_get", &MainModule);
+
   // Main function definition.
   FunctionType *MainFunctionType = FunctionType::get(
       Type::getVoidTy(Context) /* return type */,
@@ -39,7 +53,7 @@ int main() {
       Function::ExternalLinkage, "brainfuck_main", &MainModule);
   BasicBlock *MainBlock = BasicBlock::Create(Context, "entry", MainFunction);
   Builder.SetInsertPoint(MainBlock);
- 
+
   // Code generation.
   int c;
   Value *Value;
@@ -61,9 +75,17 @@ int main() {
         Value = Builder.CreateSub(Value, One);
         Builder.CreateStore(Value, DataPtr);
         break;
+      case '.':
+        Value = Builder.CreateLoad(DataPtr);
+        Builder.CreateCall(PutFunction, Value);
+        break;
+      case ',':
+        Value = Builder.CreateCall(GetFunction);
+        Builder.CreateStore(Value, DataPtr);
+        break;
     }
   }
- 
+
   // Finish off brainfuck_main and dump.
   Builder.CreateRetVoid();
   MainModule.print(outs(), NULL /* assembly annotation writer */);
