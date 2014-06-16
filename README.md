@@ -21,6 +21,4 @@ To run tests:
 
 To compile your own program:
 
-    echo ",.+.+." | ./llvm-brainfuck | llvm-as | opt -instcombine | llc >test.s
-    clang test.s shim.a -o test
-
+    echo ",.+.+." | ./compile.sh

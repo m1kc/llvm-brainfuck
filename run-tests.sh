@@ -5,8 +5,8 @@ run_test(){
 	echo "--- Test #${number}. This test $2."
 	echo "--- Compiling..."
 	echo "$1" | ./llvm-brainfuck | llvm-as | opt -instcombine | llc >test.s
-	echo "--- Running..."
 	clang test.s shim.a -o test
+	echo "--- Running..."
 	./test
 	echo -e "\n--- Done, return code $?.\n"
 	rm -f test test.s
